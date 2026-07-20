@@ -1,0 +1,4 @@
+FROM universalrobots/ursim_polyscopex
+
+# Install pre-made programs
+COPY programs /ursim/programs
