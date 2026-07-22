@@ -31,9 +31,11 @@ robot_model_key="$(printf '%s' "$robot_model" | tr '[:lower:]' '[:upper:]')"
 case "$robot_model_key" in
   UR3 | UR5 | UR10)
     image="ursim/cb3:ssh"
+    container_name="ursim_cb3"
     ;;
   UR3E | UR5E | UR10E | UR16E | UR20 | UR30)
     image="ursim/e-series:ssh"
+    container_name="ursim_e-series"
     ;;
   *)
     echo "Error: unsupported robot model '$robot_model'." >&2
@@ -59,6 +61,7 @@ fi
 echo "Starting ${robot_model} with ${image}..."
 
 exec docker run --rm -it \
+  --name "$container_name" \
   -e "ROBOT_MODEL=${robot_model}" \
   -p "${SSH_PORT}:22" \
   -p 29999:29999 \
@@ -73,4 +76,5 @@ exec docker run --rm -it \
   -p 6080:6080 \
   -v "${URCAPS_DIR}:/urcaps" \
   -v "${PROGRAMS_DIR}:/ursim/programs" \
-  "$image"
+  "$image" \
+  "control_log"
