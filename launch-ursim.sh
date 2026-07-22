@@ -59,6 +59,12 @@ if ! docker image inspect "$image" >/dev/null 2>&1; then
   exit 1
 fi
 
+existing_container="$(docker ps --all --quiet --filter "name=^/${container_name}$")"
+if [[ -n "$existing_container" ]]; then
+  echo "Removing existing container '${container_name}'..."
+  docker rm --force "$existing_container" >/dev/null
+fi
+
 echo "Starting ${robot_model} with ${image}..."
 
 exec docker run --rm -it \
