@@ -34,6 +34,7 @@ for arg in "$@"; do
 done
 
 URCAP_VERSION="${URCAP_VERSION:-1.0.5}"
+SSH_ROOT_PASSWORD="${SSH_ROOT_PASSWORD:-easybot}"
 URSIM_HOME="${URSIM_HOME:-${HOME}/.ursim}"
 PROGRAMS_DIR="${URSIM_HOME}/programs"
 URCAPS_DIR="${URSIM_HOME}/urcaps"
@@ -87,7 +88,12 @@ for build in "${docker_builds[@]}"; do
 
   echo "Building ${image} from ${dockerfile}..."
   cp "$dockerfile" "${BUILD_CONTEXT}/Dockerfile"
-  docker build --pull --build-arg "URCAP_VERSION=${URCAP_VERSION}" --tag "$image" "$BUILD_CONTEXT"
+  docker build \
+    --pull \
+    --build-arg "URCAP_VERSION=${URCAP_VERSION}" \
+    --build-arg "SSH_ROOT_PASSWORD=${SSH_ROOT_PASSWORD}" \
+    --tag "$image" \
+    "$BUILD_CONTEXT"
 done
 
 echo "Prepared SSH-enabled URSim images and External Control folders:"

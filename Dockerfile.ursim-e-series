@@ -1,13 +1,19 @@
 FROM universalrobots/ursim_e-series
 
 ARG URCAP_VERSION=1.0.5
+ARG SSH_ROOT_PASSWORD=easybot
 
 RUN set -eux; \
     apt-get update; \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-server; \
     mkdir -p /run/sshd; \
+    echo "root:${SSH_ROOT_PASSWORD}" | chpasswd; \
+    sed -i 's/^#\?PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config; \
+    sed -i 's/^#\?PasswordAuthentication .*/PasswordAuthentication yes/' /etc/ssh/sshd_config; \
+    grep -q '^PermitRootLogin ' /etc/ssh/sshd_config || echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config; \
+    grep -q '^PasswordAuthentication ' /etc/ssh/sshd_config || echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config; \
     rm -f /etc/ssh/ssh_host_*_key /etc/ssh/ssh_host_*_key.pub; \
-    awk 'NR == 2 { print "mkdir -p /run/sshd"; print "ssh-keygen -A"; print "/usr/sbin/sshd" } { print }' /entrypoint.sh > /entrypoint.sh.new; \
+    awk 'NR == 2 { print ": \"${SSH_ROOT_PASSWORD:=easybot}\""; print "echo \"root:${SSH_ROOT_PASSWORD}\" | chpasswd"; print "sed -i \"s/^#\\?PermitRootLogin .*/PermitRootLogin yes/\" /etc/ssh/sshd_config"; print "sed -i \"s/^#\\?PasswordAuthentication .*/PasswordAuthentication yes/\" /etc/ssh/sshd_config"; print "mkdir -p /run/sshd"; print "ssh-keygen -A"; print "/usr/sbin/sshd" } { print }' /entrypoint.sh > /entrypoint.sh.new; \
     cat /entrypoint.sh.new > /entrypoint.sh; \
     rm /entrypoint.sh.new; \
     chmod +x /entrypoint.sh; \

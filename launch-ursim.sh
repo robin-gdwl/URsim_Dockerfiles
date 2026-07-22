@@ -49,6 +49,7 @@ URSIM_HOME="${URSIM_HOME:-${HOME}/.ursim}"
 PROGRAMS_DIR="${URSIM_HOME}/programs"
 URCAPS_DIR="${URSIM_HOME}/urcaps"
 SSH_PORT="${SSH_PORT:-2223}"
+SSH_ROOT_PASSWORD="${SSH_ROOT_PASSWORD:-easybot}"
 
 mkdir -p "$PROGRAMS_DIR" "$URCAPS_DIR"
 
@@ -63,6 +64,7 @@ echo "Starting ${robot_model} with ${image}..."
 exec docker run --rm -it \
   --name "$container_name" \
   -e "ROBOT_MODEL=${robot_model}" \
+  -e "SSH_ROOT_PASSWORD=${SSH_ROOT_PASSWORD}" \
   -p "${SSH_PORT}:22" \
   -p 29999:29999 \
   -p 30001:30001 \
