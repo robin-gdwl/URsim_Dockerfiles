@@ -8,6 +8,31 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
+usage() {
+  echo "Usage: $0 [--with-polyscopex]"
+  echo
+  echo "By default, this pulls/updates only CB3 and e-Series URSim images."
+}
+
+include_polyscopex=0
+
+for arg in "$@"; do
+  case "$arg" in
+    --with-polyscopex)
+      include_polyscopex=1
+      ;;
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    *)
+      usage >&2
+      echo "Error: unknown option '$arg'." >&2
+      exit 1
+      ;;
+  esac
+done
+
 URCAP_VERSION="${URCAP_VERSION:-1.0.5}"
 URSIM_HOME="${URSIM_HOME:-${HOME}/.ursim}"
 PROGRAMS_DIR="${URSIM_HOME}/programs"
@@ -40,8 +65,11 @@ fi
 docker_images=(
   "universalrobots/ursim_cb3"
   "universalrobots/ursim_e-series"
-  "universalrobots/ursim_polyscopex"
 )
+
+if [[ "$include_polyscopex" -eq 1 ]]; then
+  docker_images+=("universalrobots/ursim_polyscopex")
+fi
 
 for image in "${docker_images[@]}"; do
   echo "Pulling ${image}..."
