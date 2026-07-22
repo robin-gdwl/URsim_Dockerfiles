@@ -46,6 +46,7 @@ esac
 URSIM_HOME="${URSIM_HOME:-${HOME}/.ursim}"
 PROGRAMS_DIR="${URSIM_HOME}/programs"
 URCAPS_DIR="${URSIM_HOME}/urcaps"
+SSH_PORT="${SSH_PORT:-2222}"
 
 mkdir -p "$PROGRAMS_DIR" "$URCAPS_DIR"
 
@@ -53,7 +54,7 @@ echo "Starting ${robot_model} with ${image}..."
 
 exec docker run --rm -it \
   -e "ROBOT_MODEL=${robot_model}" \
-  -p 22:22 \
+  -p "${SSH_PORT}:22" \
   -p 29999:29999 \
   -p 30001:30001 \
   -p 30002:30002 \
