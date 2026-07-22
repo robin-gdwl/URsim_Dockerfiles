@@ -46,7 +46,7 @@ esac
 URSIM_HOME="${URSIM_HOME:-${HOME}/.ursim}"
 PROGRAMS_DIR="${URSIM_HOME}/programs"
 URCAPS_DIR="${URSIM_HOME}/urcaps"
-SSH_PORT="${SSH_PORT:-2222}"
+SSH_PORT="${SSH_PORT:-2223}"
 
 mkdir -p "$PROGRAMS_DIR" "$URCAPS_DIR"
 
