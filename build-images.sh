@@ -11,7 +11,7 @@ fi
 usage() {
   echo "Usage: $0 [--with-polyscopex]"
   echo
-  echo "By default, this pulls/updates only CB3 and e-Series URSim images."
+  echo "By default, this builds SSH-enabled CB3 and e-Series URSim images."
 }
 
 include_polyscopex=0
@@ -62,20 +62,34 @@ if [[ ! -f "$URCAP_JAR" ]]; then
     "$URCAP_JAR"
 fi
 
-docker_images=(
-  "universalrobots/ursim_cb3"
-  "universalrobots/ursim_e-series"
+BUILD_CONTEXT="$(mktemp -d)"
+trap 'rm -rf "$BUILD_CONTEXT"' EXIT
+
+mkdir -p "${BUILD_CONTEXT}/programs"
+cp "$URCAP_JAR" "${BUILD_CONTEXT}/externalcontrol-${URCAP_VERSION}.jar"
+
+if [[ -d programs ]]; then
+  cp -R programs/. "${BUILD_CONTEXT}/programs/"
+fi
+
+docker_builds=(
+  "ursim/cb3:ssh:Dockerfile.ursim-cb3"
+  "ursim/e-series:ssh:Dockerfile.ursim-e-series"
 )
 
 if [[ "$include_polyscopex" -eq 1 ]]; then
-  docker_images+=("universalrobots/ursim_polyscopex")
+  docker_builds+=("ursim/polyscopex:ssh:Dockerfile.ursim-polyscopex")
 fi
 
-for image in "${docker_images[@]}"; do
-  echo "Pulling ${image}..."
-  docker pull "$image"
+for build in "${docker_builds[@]}"; do
+  image="${build%:*}"
+  dockerfile="${build##*:}"
+
+  echo "Building ${image} from ${dockerfile}..."
+  cp "$dockerfile" "${BUILD_CONTEXT}/Dockerfile"
+  docker build --pull --build-arg "URCAP_VERSION=${URCAP_VERSION}" --tag "$image" "$BUILD_CONTEXT"
 done
 
-echo "Prepared URSim images and External Control folders:"
+echo "Prepared SSH-enabled URSim images and External Control folders:"
 echo "  Programs: ${PROGRAMS_DIR}"
 echo "  URCaps:   ${URCAPS_DIR}"

@@ -1,4 +1,13 @@
 FROM universalrobots/ursim_polyscopex
 
+RUN set -eux; \
+    apt-get update; \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-server; \
+    mkdir -p /run/sshd; \
+    rm -f /etc/ssh/ssh_host_*_key /etc/ssh/ssh_host_*_key.pub; \
+    rm -rf /var/lib/apt/lists/*
+
+EXPOSE 22
+
 # Install pre-made programs
 COPY programs /ursim/programs

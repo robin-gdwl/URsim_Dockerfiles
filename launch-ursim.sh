@@ -30,10 +30,10 @@ robot_model_key="$(printf '%s' "$robot_model" | tr '[:lower:]' '[:upper:]')"
 
 case "$robot_model_key" in
   UR3 | UR5 | UR10)
-    image="universalrobots/ursim_cb3"
+    image="ursim/cb3:ssh"
     ;;
   UR3E | UR5E | UR10E | UR16E | UR20 | UR30)
-    image="universalrobots/ursim_e-series"
+    image="ursim/e-series:ssh"
     ;;
   *)
     echo "Error: unsupported robot model '$robot_model'." >&2
@@ -49,6 +49,12 @@ URCAPS_DIR="${URSIM_HOME}/urcaps"
 SSH_PORT="${SSH_PORT:-2223}"
 
 mkdir -p "$PROGRAMS_DIR" "$URCAPS_DIR"
+
+if ! docker image inspect "$image" >/dev/null 2>&1; then
+  echo "Error: Docker image '$image' was not found." >&2
+  echo "Run ./build-images.sh first to build the SSH-enabled URSim images." >&2
+  exit 1
+fi
 
 echo "Starting ${robot_model} with ${image}..."
 
